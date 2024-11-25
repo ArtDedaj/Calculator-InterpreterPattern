@@ -1,22 +1,19 @@
-﻿// Program.cs
-using System;
+﻿using System;
 
-class Program
+public class Program
 {
-    static void Main(string[] args)
+    public static void Main(string[] args)
     {
-        string input = "5+ 2";  // Example input, simple number expression
+        // Define a single test expression
+        string input = "5+l2.k";
+
+        // Create an instance of ExpressionParser to parse and evaluate the expression
         var parser = new ExpressionParser();
 
-        try
-        {
-            IExpression expression = parser.Parse(input);
-            double result = expression.Interpret();
-            Console.WriteLine($"Result: {result}");  // Output the result
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Error: {ex.Message}");
-        }
+        // Parse the expression and get the result
+        IExpression expression = parser.Parse(input);
+
+        // Output the result
+        Console.WriteLine($"Result of {input} = {expression.Interpret()}");
     }
 }
