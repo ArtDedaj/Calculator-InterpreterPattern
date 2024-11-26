@@ -1,13 +1,11 @@
-﻿// ExpressionParser.cs
-using System;
+﻿using System;
 using System.Collections.Generic;
 
-// This class removes spaces for simplicity
 public class ExpressionParser
 {
     public IExpression Parse(string expression)
     {
-        // Remove spaces from the input expression
+        // Remove spaces for simplicity
         expression = expression.Replace(" ", string.Empty);
 
         return ParseExpression(expression);
@@ -15,9 +13,7 @@ public class ExpressionParser
 
     private IExpression ParseExpression(string expression)
     {
-        // List to store parsed numbers
         var numbers = new List<IExpression>();
-        // List to store parsed operators
         var operators = new List<char>();
 
         int i = 0;
@@ -25,37 +21,35 @@ public class ExpressionParser
         {
             if (char.IsDigit(expression[i]) || expression[i] == '.')
             {
-                // Parse and store the number
+                // Parse the number
                 string number = ParseNumber(expression, ref i);
                 numbers.Add(new Expression(double.Parse(number)));
             }
             else if ("+-*/".Contains(expression[i]))
             {
-                // Store the operator
+                // Handle operators
                 operators.Add(expression[i]);
                 i++;
             }
             else
             {
-                // Skip invalid characters (malformed inputs will eventually throw exceptions elsewhere)
+                // No error handling, so just ignore this part (this will be the case for malformed inputs)
+                // But this will still throw an exception internally when it can't parse.
                 i++;
             }
         }
 
-        // Calculate the result based on operator precedence
+        // Calculate the result based on operator precedence (multiplication/division first, then addition/subtraction)
         return Calculate(numbers, operators);
     }
 
     private string ParseNumber(string expression, ref int i)
     {
-        // Find the start of the number
         int start = i;
-        // Move through the digits and optional decimal point
         while (i < expression.Length && (char.IsDigit(expression[i]) || expression[i] == '.'))
         {
             i++;
         }
-        // Extract the number as a substring
         return expression.Substring(start, i - start);
     }
 
@@ -66,12 +60,9 @@ public class ExpressionParser
         {
             if (operators[i] == '*' || operators[i] == '/')
             {
-                // Interpret the left and right operands
                 double left = numbers[i].Interpret();
                 double right = numbers[i + 1].Interpret();
-                // Compute the result
                 double result = operators[i] == '*' ? left * right : left / right;
-                // Update the list with the new result
                 numbers[i] = new Expression(result);
                 numbers.RemoveAt(i + 1);
                 operators.RemoveAt(i);
@@ -82,19 +73,15 @@ public class ExpressionParser
         // Then perform addition and subtraction
         for (int i = 0; i < operators.Count; i++)
         {
-            // Interpret the left and right operands
             double left = numbers[i].Interpret();
             double right = numbers[i + 1].Interpret();
-            // Compute the result
             double result = operators[i] == '+' ? left + right : left - right;
-            // Update the list with the new result
             numbers[i] = new Expression(result);
             numbers.RemoveAt(i + 1);
             operators.RemoveAt(i);
             i--; // Adjust index after modification
         }
 
-        // Return the final result as the single remaining number
-        return numbers[0];
+        return numbers[0]; // Return the final result
     }
 }
